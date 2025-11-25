@@ -7,6 +7,7 @@
     #content {
         position: relative;
         z-index: 1;
+        text-align: center;
     }
 
     #snow-container{
@@ -51,27 +52,30 @@
     h1 {
       margin-bottom: 10px;
     }
+    #tree {
+      white-space: nowrap;
+      line-height: 1.1;
+      font-size: 20px;
+      text-align: center;
+      margin-top: 16px
+    }
     #controls {
       margin-bottom: 20px;
     }
     button {
       margin: 4px;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 6px;
       border: none;
       cursor: pointer;
     }
-    #tree {
-      white-space: nowrap;
-      line-height: 1.1;
-      font-size: 14px;
-      text-align: left;
-    }
+
   </style>
 </head>
 <body>
   <div id = "content">
     <h1>🎄크리스마스 선물🎄</h1>
+    <pre id="tree"></pre>
     <div id="controls">
       <button data-song="jingle">Jingle Bells</button>
       <button data-song="lastChristmas">Last Christmas</button>
@@ -81,7 +85,6 @@
       <button data-song="noel">Noel</button>
       <button data-song="default">무슨 노래?</button>
     </div>
-    <pre id="tree"></pre>
   </div>
 
   <div id = "snow-container"></div>
