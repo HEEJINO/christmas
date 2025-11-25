@@ -162,13 +162,26 @@
         indices.add(Math.floor(Math.random() * starCount));
       }
 
+      const ornaments = ["✦", "✶", "✺", "•"];
+
       const chars = [];
       for (let i = 0; i < starCount; i++) {
-        if (indices.has(i)) {
-          const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-          chars.push(`<span style="color:${color}">*</span>`);
+        const isColored = indices.has(i);
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+        const isOrnament = Math.random() < 0.12;
+
+        if (isColored && isOrnament) {
+          const ch = ornaments[Math.floor(Math.random() * ornaments.length)];
+          chars.push(
+            `<span class="ornament" style="color:${color}">${ch}</span>`
+          );
+        } else if (isColored) {
+          chars.push(
+            `<span class="tree-star" style="color:${color}">*</span>`
+          );
         } else {
-          chars.push("*");
+          chars.push(`<span class="tree-star">*</span>`);
         }
       }
       return chars.join("");
