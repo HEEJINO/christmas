@@ -2,8 +2,41 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>🎄 Christmas Tree Music</title>
+  <title>🎄Christmas Tree Music🎄</title>
   <style>
+    #content {
+        position: relative;
+        z-index: 1;
+    }
+
+    #snow-container{
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .snowflake {
+        position: absolute;
+        top: -10px;
+        color: white;
+        opacity: 0.8;
+        user-select: none;
+        animation-name: snow-fall;
+        animation-timing-function: lienar;
+        animation-iteration-count: 1;
+    }
+
+    @keyframes snow-fall {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(110vh);
+        }
+    }
+
     body {
       background: #000;
       color: #fff;
@@ -37,21 +70,24 @@
   </style>
 </head>
 <body>
-  <h1>🎄크리스마스 선물</h1>
-  <div id="controls">
-    <button data-song="jingle">Jingle Bells</button>
-    <button data-song="lastChristmas">Last Christmas</button>
-    <button data-song="allIWant">All I Want For Christmas</button>
-    <button data-song="tree">O Christmas Tree</button>
-    <button data-song="weWish">We Wish You a Merry Christmas</button>
-    <button data-song="noel">Noel</button>
-    <button data-song="default">무슨 노래?</button>
+  <div id = "content">
+    <h1>🎄크리스마스 선물🎄</h1>
+    <div id="controls">
+      <button data-song="jingle">Jingle Bells</button>
+      <button data-song="lastChristmas">Last Christmas</button>
+      <button data-song="allIWant">All I Want For Christmas</button>
+      <button data-song="tree">O Christmas Tree</button>
+      <button data-song="weWish">We Wish You a Merry Christmas</button>
+      <button data-song="noel">Noel</button>
+      <button data-song="default">무슨 노래?</button>
+    </div>
+    <pre id="tree"></pre>
   </div>
 
-  <pre id="tree"></pre>
+  <div id = "snow-container"></div>
 
   <script>
-    // ===== 색상 & 트리 그리기 =====
+
     const COLORS = [
       "red",
       "limegreen",
@@ -301,6 +337,26 @@
       playMelody(melody);
     });
 
+    const snowContainer = document.getElementById("snow-container");
+
+    function createSnowflake(){
+        const span = document.createElement("span");
+        span.className = "snowflake";
+        span.textContent = "✻"
+
+        span.style.left = Math.random() * 100 + "vw";
+        span.style.fontSize = 8 + Math.random() * 16 + "px";
+        const duration = 5 + Math.random() * 5;
+        span.style.animationDuration = duration + "s";
+
+        snowContainer.appendChild(span);
+
+        setTimeout(() => {
+            span.remove();
+        }, duration * 1000);
+    }
+
+    setInterval(createSnowflake, 200);
 
     drawRainbowTree();
   </script>
