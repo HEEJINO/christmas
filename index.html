@@ -137,8 +137,12 @@
         html += spaces + stars + "<br>";
       }
 
-      for (let i = 0; i < 2; i++) {
-        const spaces = "&nbsp;".repeat(TREE_HEIGHT - 1);
+      const baseStarCount = 2 * TREE_HEIGHT -1;
+      const trunWidth = 3;
+      const trunkSpaces = Math.floor((baseStarCount - trunWidth) / 2);
+
+      for (let i = 0; i < 3; i++) {
+        const spaces = "&nbsp;".repeat(trunkSpaces);
         html +=
           spaces + `<span style="color:green">|||</span>` + "<br>";
       }
