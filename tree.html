@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎄 Christmas Tree Music</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Consolas", "Courier New", monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    button {
+      margin: 4px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    #tree {
+      white-space: nowrap;
+      line-height: 1.1;
+      font-size: 14px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎄크리스마스 선물</h1>
+  <div id="controls">
+    <button data-song="jingle">Jingle Bells</button>
+    <button data-song="lastChristmas">Last Christmas</button>
+    <button data-song="allIWant">All I Want For Christmas</button>
+    <button data-song="tree">O Christmas Tree</button>
+    <button data-song="weWish">We Wish You a Merry Christmas</button>
+    <button data-song="noel">Noel</button>
+    <button data-song="default">무슨 노래?</button>
+  </div>
+
+  <pre id="tree"></pre>
+
+  <script>
+    // ===== 색상 & 트리 그리기 =====
+    const COLORS = [
+      "red",
+      "limegreen",
+      "gold",
+      "magenta",
+      "cyan",
+      "orangered",
+      "lightgreen",
+      "khaki",
+      "dodgerblue",
+    ];
+
+    const treeEl = document.getElementById("tree");
+    const TREE_HEIGHT = 8;
+    let treeInterval = null;
+
+    function randomRainbowLine(starCount) {
+      const coloredCount = Math.floor(Math.random() * starCount) + 1;
+      const indices = new Set();
+      while (indices.size < coloredCount) {
+        indices.add(Math.floor(Math.random() * starCount));
+      }
+
+      const chars = [];
+      for (let i = 0; i < starCount; i++) {
+        if (indices.has(i)) {
+          const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+          chars.push(`<span style="color:${color}">*</span>`);
+        } else {
+          chars.push("*");
+        }
+      }
+      return chars.join("");
+    }
+
+    function drawRainbowTree() {
+      let html = "";
+      for (let i = 1; i <= TREE_HEIGHT; i++) {
+        const spaces = "&nbsp;".repeat(TREE_HEIGHT - i);
+        const starCount = 2 * i - 1;
+        const stars = randomRainbowLine(starCount);
+        html += spaces + stars + "<br>";
+      }
+
+      for (let i = 0; i < 2; i++) {
+        const spaces = "&nbsp;".repeat(TREE_HEIGHT - 1);
+        html +=
+          spaces + `<span style="color:green">|||</span>` + "<br>";
+      }
+      treeEl.innerHTML = html;
+    }
+
+    function startTreeAnimation() {
+      stopTreeAnimation();
+      drawRainbowTree();
+      treeInterval = setInterval(drawRainbowTree, 200);
+    }
+
+    function stopTreeAnimation() {
+      if (treeInterval) {
+        clearInterval(treeInterval);
+        treeInterval = null;
+      }
+    }
+
+
+    const NOTE_FREQS = {
+      C4: 262,
+      D4: 294,
+      E4: 330,
+      F4: 349,
+      "F#5": 743,
+      G4: 392,
+      A4: 440,
+      "A#5": 936,
+      B4: 494,
+      C5: 523,
+      "C#5": 555,
+      D5: 587,
+      E5: 659,
+      F5: 698,
+      G5: 784,
+      A5: 880,
+      B5: 988,
+      C6: 1047,
+      D6: 1188,
+    };
+
+    const MELODIES = {
+      jingle: [
+        ["E5", 300], ["E5", 300], ["E5", 600],
+        ["E5", 300], ["E5", 300], ["E5", 600],
+        ["E5", 300], ["G5", 300], ["C5", 400], ["D5", 150], ["E5", 900],
+        ["pause", 400],
+        ["F5", 300], ["F5", 300], ["F5", 500], ["F5", 150],
+        ["F5", 300], ["E5", 300], ["E5", 300], ["E5", 300],
+        ["E5", 400], ["D5", 300], ["D5", 300], ["E5", 300],
+        ["D5", 600], ["G5", 600],
+        ["E5", 300], ["E5", 300], ["E5", 600],
+        ["E5", 300], ["E5", 300], ["E5", 600],
+        ["E5", 300], ["G5", 300], ["C5", 400], ["D5", 150], ["E5", 900],
+        ["pause", 400],
+        ["F5", 300], ["F5", 300], ["F5", 500], ["F5", 150],
+        ["F5", 400], ["E5", 300], ["E5", 300], ["E5", 300],
+        ["G5", 300], ["G5", 300], ["F5", 300], ["D5", 300], ["C5", 400],
+      ],
+
+      lastChristmas: [
+        ["G5", 700], ["G5", 600], ["F5", 400], ["pause", 100],
+        ["C5", 300], ["G5", 300], ["G5", 300], ["A5", 300], ["F5", 700],
+        ["pause", 400],
+        ["C5", 400], ["G5", 300], ["G5", 300], ["A5", 500], ["F5", 700],
+        ["pause", 300],
+        ["C5", 300], ["pause", 100], ["E5", 300], ["F5", 300], ["E5", 300], ["D5", 600],
+        ["pause", 500],
+        ["A5", 900], ["G5", 900], ["pause", 300],
+        ["D5", 300], ["pause", 100], ["A5", 300], ["A#5", 300], ["A5", 300], ["G5", 900],
+        ["pause", 400],
+        ["F5", 300], ["E5", 400], ["F5", 400], ["F5", 400], ["E5", 600],
+        ["pause", 100],
+        ["F5", 400], ["E5", 400], ["C5", 900],
+      ],
+
+      allIWant: [
+        ["G5", 400], ["A5", 400], ["F#5", 400], ["G5", 400],
+        ["E5", 400], ["F#5", 300], ["E5", 200], ["D5", 400], ["pause", 300],
+        ["G5", 400], ["A5", 400], ["F#5", 400], ["G5", 400],
+        ["E5", 400], ["F#5", 300], ["E5", 200], ["D5", 400], ["pause", 500],
+        ["C5", 400], ["D5", 400], ["F5", 400], ["C6", 400], ["A#5", 700],
+        ["pause", 900],
+        ["A5", 600], ["G5", 600], ["F5", 600], ["D5", 600], ["C#5", 600],
+        ["G5", 1000], ["A5", 1000], ["G5", 600], ["F5", 700],
+      ],
+
+      tree: [
+        ["C5", 500], ["F5", 400], ["F5", 200], ["F5", 400],
+        ["G5", 400], ["A5", 150], ["A5", 200], ["A5", 400], ["pause", 200],
+        ["A5", 150], ["G5", 200], ["A5", 200], ["A#5", 400],
+        ["E5", 400], ["G5", 400], ["F5", 400], ["pause", 300],
+        ["C5", 500], ["F5", 400], ["F5", 200], ["F5", 400],
+        ["G5", 400], ["A5", 150], ["A5", 200], ["A5", 400], ["pause", 200],
+        ["A5", 150], ["G5", 200], ["A5", 200], ["A#5", 400],
+        ["E5", 400], ["G5", 400], ["F5", 500], ["pause", 300],
+
+        ["C6", 400], ["C6", 300], ["A5", 300], ["D6", 500],
+        ["C6", 300], ["C6", 300], ["A#5", 300], ["A#5", 600], ["pause", 300],
+        ["A#5", 400], ["A#5", 300], ["G5", 300], ["C6", 500],
+        ["A#5", 300], ["A#5", 300], ["A5", 300], ["A5", 600], ["pause", 300],
+
+        ["C5", 500], ["F5", 400], ["F5", 200], ["F5", 400],
+        ["G5", 400], ["A5", 150], ["A5", 200], ["A5", 400], ["pause", 200],
+        ["A5", 150], ["G5", 200], ["A5", 200], ["A#5", 400],
+        ["E5", 400], ["G5", 400], ["F5", 700],
+      ],
+
+      weWish: [
+        ["C5", 500], ["F5", 500], ["F5", 300], ["G5", 300],
+        ["F5", 300], ["E5", 300], ["D5", 500], ["D5", 500], ["pause", 200],
+        ["D5", 500], ["G5", 500], ["G5", 300], ["A5", 300],
+        ["G5", 300], ["F5", 300], ["E5", 500], ["C5", 500], ["pause", 200],
+        ["C5", 500], ["A5", 500], ["A5", 300], ["A#5", 300],
+        ["A5", 300], ["G5", 300], ["F5", 500], ["D5", 500],
+        ["C5", 200], ["C5", 200],
+        ["D5", 500], ["G5", 500], ["E5", 500], ["F5", 500],
+      ],
+
+      noel: [
+        ["E5", 400], ["D5", 400], ["C5", 900], ["D5", 300],
+        ["E5", 300], ["F5", 400], ["G5", 900],
+        ["pause", 500],
+        ["A5", 400], ["B5", 500], ["C6", 700], ["B5", 700],
+        ["A5", 700], ["G5", 700],
+        ["pause", 600],
+        ["A5", 400], ["B5", 500], ["C6", 700], ["B5", 700],
+        ["A5", 700], ["G5", 700],
+        ["A5", 700], ["B5", 700], ["C6", 700], ["G5", 700],
+        ["F5", 700], ["E5", 1000],
+      ],
+
+      default: [
+        ["C6", 500], ["A#5", 200], ["A5", 500], ["G5", 500],
+        ["F5", 400], ["G5", 400], ["A5", 400], ["F5", 400],
+        ["G5", 200], ["A5", 200], ["A#5", 200], ["G5", 200],
+        ["A5", 500], ["G5", 300], ["F5", 500], ["E5", 500], ["F5", 700],
+        ["pause", 300],
+        ["C6", 500], ["A#5", 300], ["A5", 500], ["G5", 500],
+        ["F5", 400], ["G5", 400], ["A5", 400], ["F5", 400],
+        ["D6", 200], ["D6", 200], ["D6", 200], ["D6", 200],
+        ["C6", 600], ["A#5", 300], ["A5", 500], ["G5", 500], ["F5", 700],
+      ],
+    };
+
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+    let isPlaying = false;
+
+    function playTone(freq, durMs, volume = 0.3) {
+      return new Promise((resolve) => {
+        if (freq == null) {
+          setTimeout(resolve, durMs);
+          return;
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.value = volume;
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        setTimeout(() => {
+          osc.stop();
+          resolve();
+        }, durMs);
+      });
+    }
+
+    async function playMelody(melody) {
+      if (isPlaying) return;
+      isPlaying = true;
+      startTreeAnimation();
+
+      for (const [note, dur] of melody) {
+        if (!isPlaying) break;
+        if (note === "pause") {
+          await playTone(null, dur);
+        } else {
+          const freq = NOTE_FREQS[note] || 600;
+          await playTone(freq, dur);
+        }
+      }
+
+      stopTreeAnimation();
+      isPlaying = false;
+    }
+
+
+    document.getElementById("controls").addEventListener("click", async (e) => {
+      if (e.target.tagName !== "BUTTON") return;
+      const key = e.target.dataset.song;
+      const melody = MELODIES[key] || MELODIES.default;
+      await audioCtx.resume();   
+      playMelody(melody);
+    });
+
+
+    drawRainbowTree();
+  </script>
+</body>
+</html>
