@@ -25,9 +25,10 @@
         opacity: 0.8;
         user-select: none;
         animation-name: snow-fall;
-        animation-timing-function: lienar;
+        animation-timing-function: linear;
         animation-iteration-count: 1;
     }
+
 
     @keyframes snow-fall {
         0% {
@@ -36,6 +37,18 @@
         100% {
             transform: translateY(110vh);
         }
+    }
+
+
+    @media (max-width: 600px) {
+      #tree {
+        font-size: 16px;
+      }
+      #controls button {
+        display: block;
+        width: 80%;
+        margin: 6px auto;
+      }
     }
 
     body {
@@ -61,6 +74,10 @@
       text-align: left;
       margin-top: 16px
     }
+    #now-playing{
+      margin-top: 10px;
+      font-size: 16px;
+    }
     #controls {
       margin-bottom: 20px;
     }
@@ -76,16 +93,17 @@
 </head>
 <body>
   <div id = "content">
-    <h1>🎄크리스마스 선물🎄</h1>
+    <h1>🎄Little Present🎄</h1>
     <pre id="tree"></pre>
+    <div id = "now-playing">Any music is playing now...</div>
     <div id="controls">
-      <button data-song="jingle">Jingle Bells</button>
-      <button data-song="lastChristmas">Last Christmas</button>
-      <button data-song="allIWant">All I Want For Christmas</button>
-      <button data-song="tree">O Christmas Tree</button>
-      <button data-song="weWish">We Wish You a Merry Christmas</button>
-      <button data-song="noel">Noel</button>
-      <button data-song="default">무슨 노래?</button>
+      <button data-song="jingle" data-label="Jingle Bells">Jingle Bells</button>
+      <button data-song="lastChristmas" data-label="Last Christmas">Last Christmas</button>
+      <button data-song="allIWant" data-label="All I Want For Christmas">All I Want For Christmas</button>
+      <button data-song="tree" data-label="Oh Christmas Tree">O Christmas Tree</button>
+      <button data-song="weWish" data-label="We Wish You A Merry Christmas">We Wish You a Merry Christmas</button>
+      <button data-song="noel" data-label="Noel">Noel</button>
+      <button data-song="default" data-label="???">Guess the song</button>
     </div>
   </div>
 
@@ -319,6 +337,7 @@
       });
     }
 
+
     async function playMelody(melody) {
       if (isPlaying) return;
       isPlaying = true;
@@ -338,14 +357,20 @@
       isPlaying = false;
     }
 
+    const nowPlayingEl = document.getElementById("now-playing");
 
     document.getElementById("controls").addEventListener("click", async (e) => {
       if (e.target.tagName !== "BUTTON") return;
       const key = e.target.dataset.song;
+      const label = e.target.dataset.label || e.target.textContent;
       const melody = MELODIES[key] || MELODIES.default;
+
+      nowPlayingEl.textContent = `Now Playing... ${label}🎵`;
       await audioCtx.resume();   
-      playMelody(melody);
+      await playMelody(melody);
+      nowPlayingEl.textContent = "Song Ended..."
     });
+
 
     const snowContainer = document.getElementById("snow-container");
 
