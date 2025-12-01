@@ -78,6 +78,17 @@
       }
     }
 
+    @keyframes playing-pulse {
+      0% {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 18px rgba(255, 255, 255, 0.3);
+      }
+      100% {
+        transform: translateY(-3px) scale(1.08);
+        box-shadow: 0 0 18px rgba(255, 255, 255, 1), 0 0 32px rgba(255, 255, 255, 0.7);
+      }
+    }
+
     body {
       background: #000;
       color: #fff;
@@ -117,6 +128,51 @@
       cursor: pointer;
     }
 
+    .playing-btn {
+      position: relative;
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.9), 0 0 26px rgba(255, 255, 255, 0.5);
+      filter: brightness(1.25);
+      animation: playing-pulse 0.8s ease-in-out infinite alternate;
+    }
+
+    .playing-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 18px rgba(255, 255, 200, 0.9);
+      pointer-events: none;
+      
+    }
+
+    .song-btn {
+      color: #fff;
+      border: none;
+      font-weight: 500;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .song-btn:active {
+      transform: translateY(2px) scale(0.97);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      filter: brightness(0.95);
+    }
+
+    .song-jingle {background: #f84e27;}
+    .song-lastChristmas {background: #ff9d13;}
+    .song-allIWant {background: #ffde39;}
+    .song-tree {background: #1bc808b6;}
+    .song-weWish {background: #1f6ce0;}
+    .song-noel {background: #7a30e1;}
+    .song-default{background: #f16fbd;}
+
+    .song-btn:hover {
+      filter: brightness(1.15);
+    }
+
   </style>
 </head>
 <body>
@@ -125,17 +181,22 @@
     <pre id="tree"></pre>
     <div id = "now-playing">Any music is playing now...</div>
     <div id="controls">
-      <button data-song="jingle" data-label="Jingle Bells">Jingle Bells</button>
-      <button data-song="lastChristmas" data-label="Last Christmas">Last Christmas</button>
-      <button data-song="allIWant" data-label="All I Want For Christmas">All I Want For Christmas</button>
-      <button data-song="tree" data-label="Oh Christmas Tree">O Christmas Tree</button>
-      <button data-song="weWish" data-label="We Wish You A Merry Christmas">We Wish You a Merry Christmas</button>
-      <button data-song="noel" data-label="Noel">Noel</button>
-      <button data-song="default" data-label="???">Guess the song</button>
+      <button class = "song-btn song-jingle" data-song="jingle" data-label="Jingle Bells">Jingle Bells</button>
+      <button class = "song-btn song-lastChristmas" data-song="lastChristmas" data-label="Last Christmas">Last Christmas</button>
+      <button class = "song-btn song-allIWant" data-song="allIWant" data-label="All I Want For Christmas">All I Want For Christmas</button>
+      <button class = "song-btn song-tree" data-song="tree" data-label="Oh Christmas Tree">Oh Christmas Tree</button>
+      <button class = "song-btn song-weWish" data-song="weWish" data-label="We Wish You A Merry Christmas">We Wish You a Merry Christmas</button>
+      <button class = "song-btn song-noel" data-song="noel" data-label="Noel">Noel</button>
+      <button class = "song-btn song-default" data-song="default" data-label="???">Guess the song</button>
     </div>
   </div>
 
+  <button id="fire-btn">🔥</button>
+  <button id="pause-btn">⏯</button>
+
   <div id = "snow-container"></div>
+
+  <audio id="fire-audio" src="sound/fire-crackling-sounds.mp3" loop></audio>
 
   <script>
 
@@ -353,10 +414,17 @@
       ],
     };
 
+    let isPlaying = false;
+    let isPaused = false;
+    let currentSongLabel = "";
+    let playToken = 0;
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
-    let isPlaying = false;
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
     function playTone(freq, durMs, volume = 0.3) {
       return new Promise((resolve) => {
@@ -384,12 +452,23 @@
 
 
     async function playMelody(melody) {
-      if (isPlaying) return;
+      const myToken = ++playToken;
       isPlaying = true;
+      isPaused = false;
       startTreeAnimation();
-
+      
       for (const [note, dur] of melody) {
-        if (!isPlaying) break;
+        if (myToken !== playToken) {
+          return;
+        }
+
+        while (isPaused) {
+          await sleep(80);
+          if (myToken !== playToken) {
+            return;
+          }
+        }
+
         if (note === "pause") {
           await playTone(null, dur);
         } else {
@@ -397,23 +476,51 @@
           await playTone(freq, dur);
         }
       }
-
-      stopTreeAnimation();
-      isPlaying = false;
+      if (myToken === playToken) {
+        stopTreeAnimation();
+        isPlaying = false;
+        nowPlayingEl.textContent = "Song Ended...";
+        currentSongLabel = "";
+        pauseBtn.textContent = "⏸";
+        isPaused = false;
+      }
     }
 
     const nowPlayingEl = document.getElementById("now-playing");
+    const pauseBtn = document.getElementById("pause-btn");
+    const controlsEl = document.getElementById("controls");
+    let currentSongButton = null;
 
-    document.getElementById("controls").addEventListener("click", async (e) => {
+    controlsEl.addEventListener("click", async(e) => {
       if (e.target.tagName !== "BUTTON") return;
-      const key = e.target.dataset.song;
-      const label = e.target.dataset.label || e.target.textContent;
+
+      const btn = e.target;
+      const key = btn.dataset.song;
+      const label = btn.dataset.label || btn.textContent;
       const melody = MELODIES[key] || MELODIES.default;
 
-      nowPlayingEl.textContent = `Now Playing... ${label}🎵`;
-      await audioCtx.resume();   
+      const expectedToken = playToken + 1;
+
+
+      if (currentSongButton) {
+        currentSongButton.classList.remove("playing-btn");
+      }
+      currentSongButton = btn;
+      currentSongButton.classList.add("playing-btn");
+
+      currentSongLabel = label;
+      isPaused = false;
+      pauseBtn.textContent = "⏸";
+
+      nowPlayingEl.textContent = `Now Playing... ${label} 🎵`;
+
+      await audioCtx.resume();
       await playMelody(melody);
-      nowPlayingEl.textContent = "Song Ended..."
+
+      if (playToken === expectedToken && currentSongButton === btn && !isPaused){
+        currentSongButton.classList.remove("playing-btn");
+        currentSongButton = null;
+      }
     });
 
 
@@ -436,7 +543,52 @@
         }, duration * 1000);
     }
 
+    pauseBtn.addEventListener("click", () => {
+      if (!isPlaying) return;
+
+      isPaused = !isPaused;
+
+      if (isPaused) {
+        pauseBtn.textContent = "▶";
+        stopTreeAnimation();
+        if (currentSongLabel) {
+          nowPlayingEl.textContent = `Paused: ${currentSongLabel} ⏸`;
+        } else {
+          nowPlayingEl.textContent = "⏸";
+        }
+      } else {
+        pauseBtn.textContent = "⏸";
+        if (currentSongLabel) {
+          nowPlayingEl.textContent = `Now Playing... ${currentSongLabel} 🎵`
+        }
+        startTreeAnimation();
+      }
+    })
+
     setInterval(createSnowflake, 200);
+
+    const fireAudio = document.getElementById("fire-audio");
+    const fireBtn = document.getElementById("fire-btn");
+    let fireOn = false;
+
+    // 장작 소리 기본 음량 0 ~ 1.0
+    fireAudio.volume = 0.5;
+
+    fireBtn.addEventListener("click", async () => {
+      if (!fireOn) {
+        try {
+          await fireAudio.play();
+          fireOn = true;
+          fireBtn.textContent = "🔥 stop";
+        } catch (err) {
+          console.error("Fire audio play error: ", err);
+        }
+      } else {
+        fireAudio.pause();
+        fireOn = false;
+        fireBtn.textContent = "🔥";
+      }
+    });
 
     drawRainbowTree();
   </script>
