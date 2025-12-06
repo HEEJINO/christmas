@@ -113,6 +113,22 @@
       margin-top: 16px;
       animation: tree-glow 3s ease-in-out infinite;
     }
+
+    #scene {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 32px;
+      margin-top: 16px;
+    }
+
+    #side-art {
+      white-space: nowrap;
+      line-height: 1.1;
+      font-size: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: left;
+    }
+
     #now-playing{
       margin-top: 10px;
       font-size: 16px;
@@ -178,7 +194,10 @@
 <body>
   <div id = "content">
     <h1>🎄Little Present🎄</h1>
-    <pre id="tree"></pre>
+    <div id = "scene">
+      <pre id="tree"></pre>
+      <pre id = "side-art"></pre>
+    </div>
     <div id = "now-playing">Any music is playing now...</div>
     <div id="controls">
       <button class = "song-btn song-jingle" data-song="jingle" data-label="Jingle Bells">Jingle Bells</button>
@@ -273,9 +292,19 @@
       treeEl.innerHTML = html;
     }
 
+    const sideArtEl = document.getElementById("side-art");
+
+    function drawSideArt() {
+      const html = [
+        '<span style="color: #d3f4ff;">☃️</span>'
+      ].join('<br>');
+      sideArtEl.innerHTML = html;
+    }
+
     function startTreeAnimation() {
       stopTreeAnimation();
       drawRainbowTree();
+      drawSideArt();
       treeInterval = setInterval(drawRainbowTree, 200);
     }
 
@@ -591,6 +620,7 @@
     });
 
     drawRainbowTree();
+    drawSideArt();
   </script>
 </body>
 </html>
