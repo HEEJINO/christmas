@@ -136,6 +136,27 @@
     #controls {
       margin-bottom: 20px;
     }
+    
+    #botton-controls {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #fire-panel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    #fire-volume {
+      width: 140px;
+    }
+
     button {
       margin: 4px;
       padding: 6px 12px;
@@ -189,6 +210,7 @@
       filter: brightness(1.15);
     }
 
+
   </style>
 </head>
 <body>
@@ -210,8 +232,22 @@
     </div>
   </div>
 
-  <button id="fire-btn">🔥</button>
-  <button id="pause-btn">⏯</button>
+  <div id = "botton-controls">
+
+    <div id = "fire-panel">
+      <button id="fire-btn">🔥✨</button>
+      <input
+        id = "fire-volume"
+        type = "range"
+        min = "0"
+        max = "1"
+        step = "0.01"
+        value = "0.5"
+      />
+      <span id = "fire-volume-text">50%</span>
+    </div>
+    <button id="pause-btn">⏯</button>
+  </div>
 
   <div id = "snow-container"></div>
 
@@ -598,24 +634,35 @@
 
     const fireAudio = document.getElementById("fire-audio");
     const fireBtn = document.getElementById("fire-btn");
+    const fireVolume = document.getElementById("fire-volume");
+    const fireVolumeText = document.getElementById("fire-volume-text");
     let fireOn = false;
 
     // 장작 소리 기본 음량 0 ~ 1.0
-    fireAudio.volume = 0.5;
+    const initialFireVolume = 0.5;
+    fireAudio.volume = initialFireVolume;
+    fireVolume.value = initialFireVolume;
+    fireVolumeText.textContent = Math.round(initialFireVolume * 100) + "%";
+
+    fireVolume.addEventListener("input", (e) => {
+      const v = parseFloat(e.target.value);
+      fireAudio.volume = v;
+      fireVolumeText.textContent = Math.round(v * 100) + "%";
+    });
 
     fireBtn.addEventListener("click", async () => {
       if (!fireOn) {
         try {
           await fireAudio.play();
           fireOn = true;
-          fireBtn.textContent = "🔥 stop";
+          fireBtn.textContent = " ✨🔥 STOP";
         } catch (err) {
-          console.error("Fire audio play error: ", err);
+          console.error("Fire audio play error: ", error);
         }
       } else {
         fireAudio.pause();
         fireOn = false;
-        fireBtn.textContent = "🔥";
+        fireBtn.textContent = "🔥✨";
       }
     });
 
